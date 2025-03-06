@@ -5,14 +5,14 @@ import theme from "./theme";
 import Layout from "./layout";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Welcome from "./pages/content/Welcome";
-import Service from "./pages/content/Service";
-import AboutUs from "./pages/content/AboutUs";
+import Welcome from "./pages/content/welcome";
+import Service from "./pages/content/service";
+import AboutUs from "./pages/content/aboutUs";
 import Register from "./pages/content/registers";
-import Caregivers from "./pages/content/Caregivers";
+import Caregivers from "./pages/content/caregivers";
 import ProfileCaregiver from "./pages/content/perfileCaregiver";
 import Login from "./pages/content/Login";
-import { AuthProvider } from "./context/AuthContext"; //
+import { AuthProvider } from "./context/authContext"; //
 
 function App() {
     return (
