@@ -12,7 +12,7 @@ const Caregivers = () => {
     useEffect(() => {
         const fetchCaregivers = async () => {
             try {
-                const response = await Axios.get("http://localhost:8080/users/list", {
+                const response = await Axios.get("http://3.95.164.82:8080/users/list", {
                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
 

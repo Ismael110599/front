@@ -48,7 +48,7 @@ const Profile = () => {
 
     const fetchProfile = async () => {
       try {
-        const response = await Axios.get('http://localhost:8080/users/profile', {
+        const response = await Axios.get('http://3.95.164.82:8080/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserData(response.data.data);
@@ -74,7 +74,7 @@ const Profile = () => {
     const token = localStorage.getItem('token');
     const fetchCaregivers = async () => {
       try {
-        const response = await Axios.get('http://localhost:8080/users/list', {
+        const response = await Axios.get('http://3.95.164.82:8080/users/list', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const filtered = response.data.data.filter(user => user.role === 'caregiver');
@@ -145,7 +145,7 @@ const Profile = () => {
     }
 
     try {
-      const response = await Axios.put('http://localhost:8080/users/update', data, {
+      const response = await Axios.put('http://3.95.164.82:8080/users/update', data, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data', // Necesario para FormData
@@ -235,7 +235,7 @@ const Profile = () => {
     };
 
     try {
-      await Axios.post('http://localhost:8080/notifications/notify', notificationPayload, {
+      await Axios.post('http://3.95.164.82:8080/notifications/notify', notificationPayload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success(`✅ Notificación enviada a ${selectedCaregiver.name}.`);

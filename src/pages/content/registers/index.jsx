@@ -9,7 +9,7 @@ import Axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_URL = "http://localhost:8080/auth/register";
+const API_URL = "http://3.95.164.82:8080/auth/register";
 
 const Register = () => {
     const navigate = useNavigate(); 
