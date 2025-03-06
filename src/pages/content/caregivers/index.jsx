@@ -75,23 +75,23 @@ const Caregivers = () => {
             </Box>
 
             {/* Lista de cuidadores */}
-            <Grid 
-                container 
-                spacing={3} 
-                justifyContent="center" 
-                sx={{ 
-                    width: "100%", 
-                    maxWidth: "100vh", 
+            <Grid
+                container
+                spacing={3}
+                justifyContent="center"
+                sx={{
+                    width: "100%",
+                    maxWidth: "100vh",
                     flexGrow: 1
                 }}
             >
                 {filteredCaregivers.length > 0 ? (
                     filteredCaregivers.map((caregiver, index) => (
                         <Grid item xs={12} sm={6} md={4} key={index}>
-                            <Card sx={{ 
-                                borderRadius: "12px", 
-                                boxShadow: "0px 4px 10px rgba(0,0,0,0.1)", 
-                                backgroundColor: "#fff", 
+                            <Card sx={{
+                                borderRadius: "12px",
+                                boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+                                backgroundColor: "#fff",
                                 padding: "15px",
                                 display: "flex",
                                 flexDirection: "column",
@@ -99,7 +99,10 @@ const Caregivers = () => {
                             }}>
                                 <CardContent sx={{ flexGrow: 1 }}>
                                     <Box sx={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                                        <Avatar sx={{ width: 60, height: 60, marginRight: "15px" }} />
+                                        <Avatar
+                                            src={caregiver.profilePicture ? `${caregiver.profilePicture}` : "/placeholder.svg"}
+
+                                            sx={{ width: 60, height: 60, marginRight: "15px" }} />
                                         <Box>
                                             <Typography variant="h6" fontWeight="bold">{caregiver.name}</Typography>
                                             <Typography variant="body2" color="textSecondary">{caregiver.email}</Typography>

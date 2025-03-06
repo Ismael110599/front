@@ -20,7 +20,7 @@ const Register = () => {
     const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [role, setRole] = useState(""); // Estado para el rol
+    const [role, setRole] = useState(""); 
     const [pets, setPets] = useState([{ name: "", type: "", age: "" }]);
 
     const handleAddPet = () => {

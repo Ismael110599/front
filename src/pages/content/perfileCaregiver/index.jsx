@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Axios from 'axios';
-import { Button, Typography, Grid, Paper, Avatar, Box, Tabs, Tab, Divider, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Typography, Grid, Paper, Avatar, Box, Tabs, Tab, Divider, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Input } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,7 +10,7 @@ import { debounce } from 'lodash';
 const formatDate = (date) => {
   const d = new Date(date);
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0'); // Meses empiezan en 0
+  const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
@@ -23,12 +23,13 @@ const Profile = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({ name: "", phone: "", address: "", pets: [] });
+  const [profilePicture, setProfilePicture] = useState(null); // Nuevo estado para la imagen
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false);
   const [openNotifyDialog, setOpenNotifyDialog] = useState(false);
   const [selectedCaregiver, setSelectedCaregiver] = useState(null);
   const [notifyData, setNotifyData] = useState({
-    startDate: formatDate(new Date()), // Fecha actual
-    endDate: formatDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)), // Una semana después
+    startDate: formatDate(new Date()),
+    endDate: formatDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
     petDetails: "",
   });
   const navigate = useNavigate();
@@ -129,18 +130,29 @@ const Profile = () => {
       return;
     }
 
+    // Crear un objeto FormData para enviar datos y archivo
+    const data = new FormData();
+    data.append('name', formData.name);
+    data.append('phone', formData.phone);
+    data.append('address', formData.address);
+    data.append('pets', JSON.stringify(formData.pets.map(pet => ({
+      name: pet.name,
+      type: pet.type,
+      age: Number(pet.age),
+    }))));
+    if (profilePicture) {
+      data.append('profilePicture', profilePicture); // Añadir la imagen si existe
+    }
+
     try {
-      const response = await Axios.put('http://localhost:8080/users/update', {
-        ...formData,
-        pets: formData.pets.map(pet => ({
-          name: pet.name,
-          type: pet.type,
-          age: Number(pet.age),
-        })),
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await Axios.put('http://localhost:8080/users/update', data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data', // Necesario para FormData
+        },
       });
       setUserData(response.data.data);
+      setProfilePicture(null); // Limpiar la imagen después de subirla
       toast.success('✅ Perfil actualizado correctamente');
       setEditMode(false);
     } catch (error) {
@@ -152,6 +164,17 @@ const Profile = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // Validar tamaño (5MB)
+        toast.error('❌ La imagen no debe exceder los 5MB');
+        return;
+      }
+      setProfilePicture(file); // Guardar el archivo en el estado
+    }
   };
 
   const handleAddPet = () => {
@@ -182,8 +205,8 @@ const Profile = () => {
   const handleCloseNotifyDialog = () => {
     setOpenNotifyDialog(false);
     setNotifyData({
-      startDate: formatDate(new Date()), // Reinicia a la fecha actual
-      endDate: formatDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)), // Una semana después
+      startDate: formatDate(new Date()),
+      endDate: formatDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
       petDetails: "",
     });
     setSelectedCaregiver(null);
@@ -231,14 +254,18 @@ const Profile = () => {
     );
   }
 
-  const { name, email, phone, address, role } = userData;
+  const { name, email, phone, address, role, profilePicture: profilePicUrl } = userData;
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 3 }}>
       <Grid container spacing={3} sx={{ maxWidth: 1200, width: '100%' }}>
         <Grid item xs={12} md={5}>
           <Paper elevation={10} sx={{ padding: 4, borderRadius: 3, textAlign: 'center' }}>
-            <Avatar alt={name} src="/placeholder.svg" sx={{ width: 120, height: 120, margin: '0 auto' }} />
+            <Avatar
+              alt={name}
+              src={profilePicUrl ? `${profilePicUrl}` : "/placeholder.svg"}
+              sx={{ width: 120, height: 120, margin: '0 auto' }}
+            />
             <Typography variant="h5" sx={{ fontWeight: 'bold', marginTop: 2 }}>{name}</Typography>
             <Typography variant="h6" color="textSecondary">{role === 'caregiver' ? 'Cuidador de Mascotas' : 'Usuario'}</Typography>
             <Divider sx={{ marginY: 2 }} />
@@ -260,7 +287,6 @@ const Profile = () => {
 
             <Box sx={{ padding: 3, minHeight: 150 }}>
               {role === 'user' && selectedTab === 0 && (
-                // Sección de mascotas (sin cambios)
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
                     Mascotas
@@ -321,7 +347,6 @@ const Profile = () => {
 
               {(role === 'user' ? selectedTab === 1 : selectedTab === 0) && (
                 editMode ? (
-                  // Sección de edición de información (sin cambios)
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
                       Editar Información Personal
@@ -353,6 +378,17 @@ const Profile = () => {
                       onChange={handleChange}
                       sx={{ marginBottom: 2 }}
                     />
+                    <Input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif"
+                      onChange={handleProfilePictureChange}
+                      sx={{ marginBottom: 2 }}
+                    />
+                    {profilePicture && (
+                      <Typography variant="body2" sx={{ marginBottom: 2 }}>
+                        Imagen seleccionada: {profilePicture.name}
+                      </Typography>
+                    )}
                     <Box sx={{ marginTop: 2 }}>
                       <Button variant="contained" onClick={handleSaveProfile} sx={{ marginRight: 2 }}>
                         Guardar Cambios
@@ -365,6 +401,7 @@ const Profile = () => {
                           address: userData.address || "",
                           pets: userData.pets || [],
                         });
+                        setProfilePicture(null); // Limpiar la imagen si se cancela
                       }}>
                         Cancelar
                       </Button>
@@ -427,7 +464,6 @@ const Profile = () => {
         </Button>
       </Box>
 
-      {/* Diálogo de cerrar sesión */}
       <Dialog open={openLogoutDialog} onClose={cancelLogout}>
         <DialogTitle>{"¿Cerrar sesión?"}</DialogTitle>
         <DialogContent>
@@ -441,7 +477,6 @@ const Profile = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Diálogo de notificación */}
       <Dialog open={openNotifyDialog} onClose={handleCloseNotifyDialog}>
         <DialogTitle>{`Notificar a ${selectedCaregiver?.name}`}</DialogTitle>
         <DialogContent>
